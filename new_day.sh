@@ -1,0 +1,1 @@
+cp -r template/ aoc_day_$1
