@@ -1,23 +1,39 @@
+fn put_in_front(update: &mut Vec<i32>, last: usize, first: usize){
+    
+    let ele = update.remove(first);
+    update.insert(last, ele);
+}
+
 fn parse_update(rules: &Vec<(i32, i32)>, update: &Vec<i32>) -> Vec<i32>{
     let mut res = update.clone();
     let mut current_idx = 0;
 
     let mut did_something = false;
+
     loop {
+        // Filter out all rules that contain element at current index
         let significant_rules = rules.iter().filter(|x| x.1 == res[current_idx]).collect::<Vec<&(i32,i32)>>();
-        for (a,b) in significant_rules{
+
+        // Go over all these rules and sort them if rule is broken
+        for (a,_) in significant_rules{
             let idx = res.iter().position(|&x| x == *a);
             if idx.is_some() {
-                dbg!(&res, a);
-                res.remove(idx.unwrap());
-                res.insert(current_idx, *a);
-                did_something = true;
-                dbg!(&res);
+                if idx.unwrap() > current_idx{
+                    put_in_front(&mut res, current_idx, idx.unwrap());
+                    did_something = true;
+                }
             }
         }   
+        // Go to next element
         current_idx+=1;
-        current_idx = current_idx % update.len();
 
+        // Since probably all rules won't be applied first iteration, repeat until full iteration is without a rule fix
+        if current_idx == update.len(){
+            did_something = false;
+            current_idx = 0;
+        }
+
+        // If nothing was fixed for the whole iteration, break
         if !did_something && current_idx == update.len()-1 {
             break;
         }
@@ -42,7 +58,7 @@ pub fn solve(lines: &Vec<String>) {
             rules.push((parsed_line[0], parsed_line[1]));
         }
         else {
-            let mut parsed_line = line.split(",")
+            let parsed_line = line.split(",")
                                                 .map(|x: &str| x.parse::<i32>().unwrap())
                                                 .collect::<Vec<i32>>();
             updates.push(parsed_line);
@@ -50,7 +66,11 @@ pub fn solve(lines: &Vec<String>) {
     }
 
     for update in updates{
-        parse_update(&rules, &update);
+        let result = parse_update(&rules, &update);
+        if result == update{
+            let mid_idx  =update.len() - update.len()/2-update.len()%2;
+            res += result[mid_idx];
+        }
     }
 
     println!("Part one result {}", res);
