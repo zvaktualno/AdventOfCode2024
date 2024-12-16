@@ -10,7 +10,7 @@ fn find_guard_xy(map: &Vec<Vec<u8>>) -> (usize, usize) {
             if map[line][col] > b'<'{
                 return (line, col);
             }
-        }    
+        }
     }
 
     assert!(false);
@@ -47,6 +47,7 @@ fn process_map(map: &mut Vec<Vec<u8>>){
     loop {
         let (next_line, next_col) = guard_next_coordinates(map[line][col], line as i32, col as i32);
         if (next_line, next_col) == invalid_val || next_line == map.len() as i32 || next_col == map[0].len() as i32|| next_line == -1 || next_col == -1 {
+            map[line][col] = b'X';
             break;
         }
         let next_line: usize = next_line as usize;
@@ -56,7 +57,7 @@ fn process_map(map: &mut Vec<Vec<u8>>){
             map[line][col] = turn(map[line][col]);
         }
         else
-        {   
+        {
             map[next_line][next_col] = map[line][col];
             map[line][col] = b'X';
             line = next_line;
@@ -66,7 +67,7 @@ fn process_map(map: &mut Vec<Vec<u8>>){
 }
 
 pub fn solve(lines: &Vec<String>) {
-    let mut res: i32 = 1;
+    let mut res: i32 = 0;
     let mut map = lines.clone()
         .iter()
         .map(|x| x.as_bytes().to_vec())
@@ -79,7 +80,7 @@ pub fn solve(lines: &Vec<String>) {
             if map[line][col] == b'X'{
                 res += 1;
             }
-        }    
+        }
     }
     println!("Part one result {}", res);
 }
